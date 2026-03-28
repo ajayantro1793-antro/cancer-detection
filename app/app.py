@@ -13,7 +13,26 @@ Run from project root:
     streamlit run app/app.py
 ─────────────────────────────────────────────────────────────────────────────
 """
+import gdown
+import os
 
+# Download classifier model
+if not os.path.exists("models/classifier/best_model.pth"):
+    os.makedirs("models/classifier", exist_ok=True)
+    gdown.download(
+        "https://drive.google.com/uc?id=1Sq4bxKixjMun5o0FFYBBsGzRsSToLESv",
+        "models/classifier/best_model.pth",
+        quiet=False
+    )
+
+# Download detector model
+if not os.path.exists("models/detector/runs/weights/best.pt"):
+    os.makedirs("models/detector/runs/weights", exist_ok=True)
+    gdown.download(
+        "https://drive.google.com/uc?id=1W_5ce3GhgElAgz4N5V-XeOD9BwWFDPkX",
+        "models/detector/runs/weights/best.pt",
+        quiet=False
+    )
 import sys
 import yaml
 import streamlit as st
