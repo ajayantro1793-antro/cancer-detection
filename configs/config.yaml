@@ -1,0 +1,78 @@
+# ─────────────────────────────────────────────
+# Lung Cancer Detection — Central Config File
+# ─────────────────────────────────────────────
+
+project:
+  name: "Lung Cancer Detection"
+  version: "1.0.0"
+  seed: 42
+
+# ── Paths ─────────────────────────────────────
+paths:
+  data_root: "data"
+  chest_ctscan: "data/Data"     # mohamedhanyyy/chest-ctscan-images
+  classifier_output: "models/classifier"
+  detector_output: "models/detector"
+  yolo_dataset: "data/yolo_dataset"
+  reports_output: "app/reports"
+  iq_oth_nccd: "data/iq_oth_nccd"
+
+# ── Classifier (EfficientNet-B4) ───────────────
+classifier:
+  model_name: "efficientnet_b4"
+  num_classes: 3
+  classes: ["adenocarcinoma", "large_cell_carcinoma", "squamous_cell_carcinoma", "normal"]
+  image_size: 512
+  batch_size: 16          # safe for RTX 4050 6GB VRAM
+  epochs: 50
+  learning_rate: 0.0001
+  weight_decay: 0.0001
+  dropout: 0.4
+  label_smoothing: 0.1
+  early_stopping_patience: 10
+  pretrained: true
+  freeze_layers: true      # freeze early backbone layers
+  unfreeze_blocks: 3       # fine-tune last 3 blocks only
+  mixed_precision: true    # use fp16 for RTX 4050 speedup
+
+# ── Detector (YOLOv8-m) ───────────────────────
+detector:
+  model: "yolov8m.pt"
+  image_size: 640
+  batch_size: 16
+  epochs: 50
+  learning_rate: 0.001
+  iou_threshold: 0.45
+  confidence_threshold: 0.25
+  num_classes: 3                                                          # 3 cancer types (normal = empty label)
+  class_names: ["adenocarcinoma", "large_cell_carcinoma", "squamous_cell_carcinoma"]
+  mixed_precision: true
+
+# ── Augmentation ──────────────────────────────
+augmentation:
+  horizontal_flip: 0.5
+  vertical_flip: 0.3
+  rotation_limit: 10        # reduced from 15 — CT orientation is meaningful
+  brightness_limit: 0.2
+  contrast_limit: 0.2
+  gaussian_noise: true
+  elastic_transform: true
+  normalize_mean: [0.485, 0.456, 0.406]
+  normalize_std:  [0.229, 0.224, 0.225]
+
+# ── Grad-CAM ──────────────────────────────────
+gradcam:
+  target_layer: "blocks.6"    # last conv block in EfficientNet-B4
+  colormap: "jet"
+  alpha: 0.5                  # heatmap overlay transparency
+
+# ── App ───────────────────────────────────────
+app:
+  title: "AI Lung Cancer Detection"
+  confidence_threshold: 0.75
+  risk_levels:
+    high: 0.80
+    medium: 0.50
+    low: 0.0
+
+

@@ -1,0 +1,11 @@
+# Datasets
+data/
+*.zip
+*.nii.gz
+
+# Model weights
+*.pth
+*.pt
+
+# Training runs
+runs/
